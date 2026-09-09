@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Pirate Treasure Race - Math Adventure</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans Thai",sans-serif;background:#083b58;color:#fff;min-height:100vh}
+button{font:inherit;cursor:pointer}.screen{display:none;min-height:100vh;padding:20px}.screen.active{display:flex}
+.bg{background:radial-gradient(circle at 20% 10%,#61d5ed 0 12%,transparent 13%),linear-gradient(#36b9dc 0 42%,#f0d18a 42%);position:relative;overflow:hidden}
+.bg:before{content:"🌴  🌴        ⛵       🌴    🦜";position:absolute;top:12px;left:0;width:100%;font-size:50px;opacity:.75}
+.panel{position:relative;z-index:1;background:linear-gradient(#f7e1a7,#e8c477);color:#4d2b12;border:5px solid #70451e;border-radius:24px;box-shadow:0 10px 30px #0007}
+.menu{width:min(720px,100%);margin:auto;padding:28px;text-align:center}
+.logo{font-weight:1000;line-height:.9;font-size:clamp(42px,10vw,82px);text-shadow:4px 5px 0 #fff,7px 8px 0 #713a13;letter-spacing:-3px}
+.logo small{display:block;font-size:clamp(20px,5vw,34px);letter-spacing:1px;margin-top:16px;text-shadow:2px 3px #fff}
+.hero{font-size:90px;margin:12px}.mainbtn{display:block;width:min(430px,90%);margin:15px auto;padding:16px 22px;border-radius:16px;border:3px solid #6b3b13;background:linear-gradient(#ffd85b,#e98b16);color:#4b260b;font-weight:900;font-size:28px;box-shadow:0 5px 0 #6b3b13}.subbtn{background:#70451e;color:#fff}.hud{position:absolute;right:18px;top:18px;background:#6b3c16;border:3px solid #f4ca59;border-radius:14px;padding:8px 14px;font-weight:800;z-index:3}
+.content{width:min(1100px,100%);margin:auto;padding:10px}.title{text-align:center;font-size:34px;font-weight:1000;color:#542c0e;margin:5px 0 20px}
+.chars{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.char{background:#fff0c9;border:3px solid #a56a25;border-radius:18px;padding:10px;text-align:center}.char.selected{outline:5px solid #27a64a}.avatar{font-size:62px}.char h3{margin:5px}.stats{font-size:13px;text-align:left}.bar{height:9px;background:#ddd;border-radius:10px;margin:4px 0 7px;overflow:hidden}.bar i{display:block;height:100%;width:70%;background:#e9a321}.char button{border:0;background:#d78b22;color:#fff;border-radius:9px;padding:6px 12px}
+.rules{padding:20px;max-width:760px;margin:auto;font-size:18px}.rules li{margin:10px}
+.gamewrap{width:min(1180px,100%);margin:auto;display:grid;grid-template-columns:220px 1fr;gap:15px;align-items:start}
+.side{padding:14px}.players{display:grid;gap:8px}.pbox{padding:9px;background:#fff3cc;border:2px solid #9b6524;border-radius:12px;color:#43250d;font-weight:800}.pbox.active{outline:4px solid #36a853}.controls{text-align:center;margin-top:10px}.dice{font-size:65px;height:75px}.roll{width:100%;padding:13px;border:0;border-radius:13px;background:#f4b72c;color:#4d270b;font-weight:1000;font-size:21px}
+.board{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;padding:8px;background:#70451e;border:4px solid #43280f;border-radius:18px;aspect-ratio:1/1}
+.cell{position:relative;min-width:0;border-radius:7px;background:#bde8dd;color:#153c45;display:flex;align-items:flex-start;justify-content:flex-start;padding:4px;font-weight:900;overflow:hidden}.cell:nth-child(3n){background:#d9efb5}.cell:nth-child(5n){background:#f2d995}.cell .special{position:absolute;right:3px;bottom:1px;font-size:16px}.tokens{position:absolute;left:3px;bottom:2px;display:flex;flex-wrap:wrap;max-width:90%;gap:1px}.token{width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;font-size:14px;box-shadow:0 2px 4px #0008}.t1{background:#e83f3f}.t2{background:#287bdc}.t3{background:#31a95d}.t4{background:#e6ad28}
+.event{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;z-index:20;padding:20px}.event.show{display:flex}.eventbox{max-width:430px;width:100%;padding:25px;text-align:center}.eventicon{font-size:75px}.eventbox h2{font-size:28px}.answer{width:100%;padding:12px;border:2px solid #a06a2a;border-radius:10px;font-size:22px;text-align:center}.msg{font-weight:900;min-height:28px}
+.win{text-align:center;width:min(650px,100%);margin:auto;padding:35px}.treasure{font-size:100px}.win h1{font-size:48px;color:#a85d09}
+@media(max-width:800px){.gamewrap{grid-template-columns:1fr}.side{order:2}.chars{grid-template-columns:repeat(2,1fr)}.screen{padding:10px}.logo{font-size:48px}.board{gap:2px}.cell{font-size:10px;padding:2px}.cell .special{font-size:11px}.token{width:20px;height:20px;font-size:11px}}
+</style>
+</head>
+<body>
+
+<section id="menu" class="screen active bg">
+  <div class="hud">⭐ <span id="stars">1250</span> &nbsp; 🪙 <span id="coins">300</span> &nbsp; ❤️ 5</div>
+  <div class="panel menu">
+    <div class="hero">🏴‍☠️ 🦜</div>
+    <div class="logo">PIRATE<br><span style="color:#ff8a13">TREASURE RACE</span><small>โจรสลัดล่าสมบัติ</small></div>
+    <p style="font-size:19px">⚔️ ผจญภัยบนเกาะสมบัติ พร้อมโจทย์คณิตศาสตร์!</p>
+    <button class="mainbtn" onclick="show('characters')">▶ เริ่มเกม</button>
+    <button class="mainbtn subbtn" onclick="show('rules')">📖 วิธีเล่น</button>
+  </div>
+</section>
+
+<section id="characters" class="screen bg">
+ <div class="panel content">
+  <div class="title">🏴‍☠️ เลือกตัวละครของคุณ</div>
+  <div class="chars">
+   <div class="char selected" data-char="0"><div class="avatar">🏴‍☠️</div><h3>กัปตันเรด</h3><div class="stats">ความเร็ว</div><div class="bar"><i style="width:90%"></i></div><div>โชค ⭐⭐⭐</div><button onclick="selectChar(this)">เลือก</button></div>
+   <div class="char" data-char="1"><div class="avatar">⚓</div><h3>กัปตันบลู</h3><div class="stats">ความเร็ว</div><div class="bar"><i style="width:75%"></i></div><div>โชค ⭐⭐⭐⭐</div><button onclick="selectChar(this)">เลือก</button></div>
+   <div class="char" data-char="2"><div class="avatar">🧭</div><h3>กัปตันกรีน</h3><div class="stats">ความเร็ว</div><div class="bar"><i style="width:65%"></i></div><div>โชค ⭐⭐⭐⭐⭐</div><button onclick="selectChar(this)">เลือก</button></div>
+   <div class="char" data-char="3"><div class="avatar">🗺️</div><h3>กัปตันเยลโล่</h3><div class="stats">ความเร็ว</div><div class="bar"><i style="width:80%"></i></div><div>โชค ⭐⭐⭐⭐</div><button onclick="selectChar(this)">เลือก</button></div>
+  </div>
+  <button class="mainbtn" onclick="startGame()">ยืนยันและออกผจญภัย 🗺️</button>
+ </div>
+</section>
+
+<section id="rules" class="screen bg">
+ <div class="panel rules">
+  <div class="title">📜 วิธีเล่น</div>
+  <ol>
+   <li>👥 เล่นได้ 2–4 คน</li><li>🎲 กดทอยลูกเต๋า แล้วเดินตามแต้ม</li>
+   <li>🪜 เจอบันได/เชือก → ขึ้นไปยังช่องที่สูงกว่า</li>
+   <li>🐙 เจอคราเคน → ถูกลากลงไปยังช่องที่ต่ำกว่า</li>
+   <li>💀 เจอกับดัก → ถอยหลัง 2 ช่อง</li>
+   <li>💰 เจอหีบสมบัติ → รับเหรียญและโบนัส</li>
+   <li>🧮 ช่องโจทย์ → ต้องตอบโจทย์ให้ถูก จึงเดินต่อได้</li>
+   <li>🏆 ใครถึงช่อง 100 ก่อน คว้าสมบัติและชนะ!</li>
+  </ol>
+  <button class="mainbtn" onclick="show('menu')">กลับเมนู</button>
+ </div>
+</section>
+
+<section id="game" class="screen bg">
+ <div class="gamewrap">
+  <div class="panel side">
+   <h2 style="margin:4px;text-align:center">👥 ผู้เล่น</h2>
+   <div class="players" id="players"></div>
+   <div class="controls"><div id="dice" class="dice">🎲</div><button class="roll" onclick="rollDice()">ทอยลูกเต๋า</button></div>
+   <button class="mainbtn subbtn" style="font-size:16px;width:100%" onclick="show('menu')">🏠 เมนู</button>
+  </div>
+  <div>
+   <div class="panel" style="padding:8px;margin-bottom:8px;text-align:center;color:#4d2b12;font-weight:900" id="turnText">ตาของ ผู้เล่น 1</div>
+   <div class="board" id="board"></div>
+  </div>
+ </div>
+</section>
+
+<section id="win" class="screen bg">
+ <div class="panel win">
+  <div class="treasure">🏆💰🏴‍☠️</div><h1>คว้าสมบัติสำเร็จ!</h1>
+  <p id="winText" style="font-size:24px"></p>
+  <button class="mainbtn" onclick="startGame()">เล่นอีกครั้ง</button>
+  <button class="mainbtn subbtn" onclick="show('menu')">กลับเมนู</button>
+ </div>
+</section>
+
+<div id="event" class="event">
+ <div class="panel eventbox">
+  <div class="eventicon" id="eventIcon">🧮</div>
+  <h2 id="eventTitle">โจทย์คณิตศาสตร์</h2>
+  <p id="question" style="font-size:28px;font-weight:1000"></p>
+  <input id="answer" class="answer" inputmode="numeric" placeholder="พิมพ์คำตอบ">
+  <div class="msg" id="msg"></div>
+  <button class="mainbtn" onclick="checkAnswer()">ตอบ</button>
+ </div>
+</div>
+
+<script>
+const players=[
+ {name:"ผู้เล่น 1",icon:"🏴‍☠️",cls:"t1",pos:1,coins:0},
+ {name:"ผู้เล่น 2",icon:"⚓",cls:"t2",pos:1,coins:0},
+ {name:"ผู้เล่น 3",icon:"🧭",cls:"t3",pos:1,coins:0},
+ {name:"ผู้เล่น 4",icon:"🗺️",cls:"t4",pos:1,coins:0}
+];
+let selected=0,turn=0,locked=false,pending=null;
+const jumps={4:14,9:31,17:7,20:38,28:56,40:59,51:72,56:34,63:81,75:93,87:66};
+const specials={4:"🪜",9:"🐙",17:"🐙",20:"🪜",28:"🪜",31:"💀",40:"🪜",51:"💰",56:"🐙",63:"🪜",65:"💀",72:"💰",75:"🪜",81:"💀",87:"🐙",93:"🪜",96:"💰"};
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function selectChar(btn){document.querySelectorAll('.char').forEach(x=>x.classList.remove('selected'));btn.closest('.char').classList.add('selected');selected=+btn.closest('.char').dataset.char}
+function startGame(){players.forEach((p,i)=>{p.pos=1;p.coins=0});turn=0;locked=false;buildBoard();updatePlayers();show('game')}
+function buildBoard(){
+ const b=document.getElementById('board');b.innerHTML='';
+ for(let row=9;row>=0;row--){
+  let nums=[...Array(10)].map((_,i)=>row*10+i+1);if(row%2)nums.reverse();
+  nums.forEach(n=>{const c=document.createElement('div');c.className='cell';c.id='c'+n;c.innerHTML='<span>'+n+'</span><span class="special">'+(specials[n]||'')+'</span><div class="tokens"></div>';b.appendChild(c)})
+ }
+ drawTokens()
+}
+function drawTokens(){
+ document.querySelectorAll('.tokens').forEach(x=>x.innerHTML='');
+ players.forEach(p=>{const t=document.createElement('div');t.className='token '+p.cls;t.textContent=p.icon;document.querySelector('#c'+p.pos+' .tokens').appendChild(t)})
+}
+function updatePlayers(){
+ document.getElementById('players').innerHTML=players.map((p,i)=>`<div class="pbox ${i===turn?'active':''}">${p.icon} ${p.name}<br>📍 ช่อง ${p.pos} &nbsp; 🪙 ${p.coins}</div>`).join('');
+ document.getElementById('turnText').textContent='🎲 ตาของ '+players[turn].name+' — ช่อง '+players[turn].pos;
+}
+function rollDice(){
+ if(locked)return;
+ locked=true;
+ const n=Math.floor(Math.random()*6)+1;
+ document.getElementById('dice').textContent=['','⚀','⚁','⚂','⚃','⚄','⚅'][n];
+ const p=players[turn];let target=Math.min(100,p.pos+n);
+ setTimeout(()=>{p.pos=target;drawTokens();updatePlayers();handleCell(p)},500)
+}
+function handleCell(p){
+ if(p.pos===100){win(p);return}
+ if(specials[p.pos]==='💰'){p.coins+=20;document.getElementById('coins').textContent=300+p.coins}
+ if(jumps[p.pos]){
+   const dest=jumps[p.pos];
+   if(specials[p.pos]==='🐙'){p.pos=dest;drawTokens();updatePlayers();nextTurn();return}
+   if(['🪜'].includes(specials[p.pos])){p.pos=dest;drawTokens();updatePlayers();nextTurn();return}
+ }
+ if(p.pos===31||p.pos===65){p.pos=Math.max(1,p.pos-2);drawTokens();updatePlayers()}
+ if([7,12,18,25,33,47,58,69,78,89].includes(p.pos)){openMath(p);return}
+ nextTurn()
+}
+function openMath(p){
+ pending={player:p,answer:0};
+ const a=Math.floor(Math.random()*20)+5,b=Math.floor(Math.random()*20)+3;
+ pending.answer=a+b;document.getElementById('eventIcon').textContent='🧮';document.getElementById('eventTitle').textContent='ด่านคณิตศาสตร์';
+ document.getElementById('question').textContent=a+' + '+b+' = ?';document.getElementById('answer').value='';document.getElementById('msg').textContent='';document.getElementById('event').classList.add('show');setTimeout(()=>document.getElementById('answer').focus(),100)
+}
+function checkAnswer(){
+ if(!pending)return;const v=Number(document.getElementById('answer').value);const m=document.getElementById('msg');
+ if(v===pending.answer){pending.player.coins+=10;m.textContent='✅ ถูกต้อง! +10 เหรียญ';setTimeout(()=>{document.getElementById('event').classList.remove('show');pending=null;nextTurn()},700)}
+ else{m.textContent='❌ ยังไม่ถูก ลองใหม่!'}
+}
+function nextTurn(){turn=(turn+1)%players.length;locked=false;updatePlayers()}
+function win(p){document.getElementById('winText').textContent=p.name+' เดินทางถึงช่อง 100 และได้รับสมบัติทั้งหมด! 🪙 '+p.coins+' เหรียญ';show('win');locked=true}
+document.getElementById('answer').addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer()});
+</script>
+</body>
+</html>
